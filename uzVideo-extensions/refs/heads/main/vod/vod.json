@@ -10,11 +10,10 @@
     {
         "name": "Hanime1",
         "api": "https://raw.kkgithub.com/dddfdr/ggjh/main/uzVideo-extensions/refs/heads/main/vod/js/Hanime1.js",
-        "instance": "csp_Hanime1",
         "webSite": "https://hanime1.me",
-        "remark": "",
+        "remark": "广告",
         "version": "2",
-        "type": 100
+        "type": 101
     },
     {
         "name": "在線之家",
