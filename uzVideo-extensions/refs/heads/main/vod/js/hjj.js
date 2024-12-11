@@ -1,248 +1,184 @@
-class hjjClass extends WebApiBase {
-    constructor() {
-        super()
-        this.webSite = 'https://hanime1.me'
-        this.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        }
-        this.ignoreClassName = ['首页']
-    }
+const cheerio = createCheerio()
 
-    /**
-     * 异步获取分类列表的方法。
-     * @param {UZArgs} args
-     * @returns {Promise<RepVideoClassList>}
-     */
-    async getClassList(args) {
-        let webUrl = args.url
-        // 如果通过首页获取分类的话，可以将对象内部的首页更新
-        this.webSite = UZUtils.removeTrailingSlash(webUrl)
-        let backData = new RepVideoClassList()
-        try {
-            const pro = await req(webUrl + '/index/getMvStyle/order/count', { headers: this.headers })
-            backData.error = pro.error
-            const proData = pro.data
-            if (proData) {
-                const $ = cheerio.load(proData)
-                let allClass = $('.pb-3.pb-e-lg-40 .col-6.col-sm-4.col-lg-3')
-                let list = []
-                allClass.each((index, e) => {
-                    const name = $(e).find('h4').text()
-                    const url = $(e).find('a').attr('href')
-                    const isIgnore = this.isIgnoreClassName(name)
-                    if (isIgnore) return
-                    if (url.length > 0 && name.length > 0) {
-                        let videoClass = new VideoClass()
-                        videoClass.type_id = url
-                        videoClass.type_name = name
-                        list.push(videoClass)
-                    }
-                })
-                backData.data = list
-            }
-        } catch (error) {
-            backData.error = '获取分类失败～' + error.message
-        }
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 
-        return JSON.stringify(backData)
-    }
-
-    /**
-     * 获取分类视频列表
-     * @param {UZArgs} args
-     * @returns {Promise<RepVideoList>}
-     */
-    async getVideoList(args) {
-        let backData = new RepVideoList()
-        try {
-            let listUrl = this.webSite + args.url + `/sort/update/page/${args.page}`
-
-            let pro = await req(listUrl, { headers: this.headers })
-            backData.error = pro.error
-            let proData = pro.data
-            if (proData) {
-                const $ = cheerio.load(proData)
-                let list = $('.pb-3.pb-e-lg-40 .col-6.col-sm-4.col-lg-3')
-                let videoPromises = list
-                    .map(async (_, element) => {
-                        const href = $(element).find('.title a').attr('href')
-                        const title = $(element).find('.title a').text()
-                        const cover = $(element).find('.zximg').attr('z-image-loader-url')
-
-                        let videoDet = new VideoDetail()
-                        videoDet.vod_id = href
-                        videoDet.vod_pic = await this.getImg(cover)
-                        videoDet.vod_name = title
-
-                        return videoDet
-                    })
-                    .get()
-
-                let videos = await Promise.all(videoPromises)
-
-                backData.data = videos
-            }
-        } catch (error) {
-            backData.error = '获取列表失败～' + error.message
-        }
-        return JSON.stringify(backData)
-    }
-
-    /**
-     * 获取视频详情
-     * @param {UZArgs} args
-     * @returns {Promise<RepVideoDetail>}
-     */
-    async getVideoDetail(args) {
-        let backData = new RepVideoDetail()
-        try {
-            let webUrl = UZUtils.removeTrailingSlash(this.webSite) + args.url
-            let pro = await req(webUrl, { headers: this.headers })
-            backData.error = pro.error
-            let proData = pro.data
-            if (proData) {
-                const $ = cheerio.load(proData)
-                let vod_content = ''
-                let vod_pic = ''
-                let vod_name = ''
-                // let detList = document.querySelectorAll('ewave-content__detail p.data')
-                let vod_year = ''
-                let vod_director = ''
-                let vod_actor = ''
-                let vod_area = ''
-                let vod_lang = ''
-                let vod_douban_score = ''
-                let type_name = ''
-
-                let playUrl = proData.match(/var hlsUrl = "(.*?)";/)[1]
-                let vod_play_url = `播放$${playUrl}`
-
-                let detModel = new VideoDetail()
-                detModel.vod_year = vod_year
-                detModel.type_name = type_name
-                detModel.vod_director = vod_director
-                detModel.vod_actor = vod_actor
-                detModel.vod_area = vod_area
-                detModel.vod_lang = vod_lang
-                detModel.vod_douban_score = vod_douban_score
-                detModel.vod_content = vod_content
-                detModel.vod_pic = vod_pic
-                detModel.vod_name = vod_name
-                detModel.vod_play_url = vod_play_url
-                detModel.vod_id = webUrl
-
-                backData.data = detModel
-            }
-        } catch (error) {
-            backData.error = '获取视频详情失败' + error.message
-        }
-
-        return JSON.stringify(backData)
-    }
-
-    /**
-     * 获取视频的播放地址
-     * @param {UZArgs} args
-     * @returns {Promise<RepVideoPlayUrl>}
-     */
-    async getVideoPlayUrl(args) {
-        let backData = new RepVideoPlayUrl()
-        try {
-            backData.data = args.url
-        } catch (error) {
-            backData.error = error.message
-        }
-        return JSON.stringify(backData)
-    }
-
-    /**
-     * 搜索视频
-     * @param {UZArgs} args
-     * @returns {Promise<RepVideoList>}
-     */
-    async searchVideo(args) {
-        let backData = new RepVideoList()
-        try {
-            let listUrl = this.webSite + `/search/index/keyword/${args.searchWord}/page/${args.page}`
-
-            let pro = await req(listUrl, { headers: this.headers })
-            backData.error = pro.error
-            let proData = pro.data
-            if (proData) {
-                const $ = cheerio.load(proData)
-                let list = $('.pb-3.pb-e-lg-40 .col-6.col-sm-4.col-lg-3')
-                let videoPromises = list
-                    .map(async (_, element) => {
-                        const href = $(element).find('.title a').attr('href')
-                        const title = $(element).find('.title a').text()
-                        const cover = $(element).find('.zximg').attr('z-image-loader-url')
-
-                        let videoDet = new VideoDetail()
-                        videoDet.vod_id = href
-                        videoDet.vod_pic = await this.getImg(cover)
-                        videoDet.vod_name = title
-
-                        return videoDet
-                    })
-                    .get()
-
-                let videos = await Promise.all(videoPromises)
-
-                backData.data = videos
-            }
-        } catch (error) {
-            backData.error = '获取列表失败～' + error.message
-        }
-        return JSON.stringify(backData)
-    }
-
-    async getImg(cover) {
-        let imgData = await req(cover, { responseType: 'arraybuffer' })
-        let base64Data = this.arrayBufferToBase64(imgData.data)
-        let decryptData = this.aesDecrypt(base64Data)
-        let base64img = 'data:image/png;base64,' + decryptData
-
-        return base64img
-    }
-    arrayBufferToBase64(arrayBuffer) {
-        let uint8Array = new Uint8Array(arrayBuffer)
-        let wordArray = Crypto.lib.WordArray.create(uint8Array)
-        let base64String = Crypto.enc.Base64.stringify(wordArray)
-
-        return base64String
-    }
-    aesDecrypt(word) {
-        let key = Crypto.enc.Utf8.parse('f5d965df75336270')
-        let iv = Crypto.enc.Utf8.parse('97b60394abc2fbe1')
-        let decrypted = Crypto.AES.decrypt(word, key, {
-            iv: iv,
-            mode: Crypto.mode.CBC,
-            padding: Crypto.pad.NoPadding,
-        })
-        return Crypto.enc.Base64.stringify(decrypted)
-    }
-
-    combineUrl(url) {
-        if (url === undefined) {
-            return ''
-        }
-        if (url.indexOf(this.webSite) !== -1) {
-            return url
-        }
-        if (url.startsWith('/')) {
-            return this.webSite + url
-        }
-        return this.webSite + '/' + url
-    }
-
-    isIgnoreClassName(className) {
-        for (let index = 0; index < this.ignoreClassName.length; index++) {
-            const element = this.ignoreClassName[index]
-            if (className.indexOf(element) !== -1) {
-                return true
-            }
-        }
-        return false
-    }
+let appConfig = {
+    ver: 1,
+    title: 'hanime',
+    site: 'https://hanime1.me',
 }
-let hjj20241127 = new hjjClass()
+
+async function getConfig() {
+    let config = appConfig
+    config.tabs = await getTabs()
+    return jsonify(config)
+}
+
+async function getTabs() {
+    let list = []
+    let ignore = ['新番預告', 'H漫畫']
+    function isIgnoreClassName(className) {
+        return ignore.some((element) => className.includes(element))
+    }
+
+    const { data } = await $fetch.get(appConfig.site, {
+        headers: {
+            'User-Agent': UA,
+        },
+    })
+    const $ = cheerio.load(data)
+
+    let allClass = $('#main-nav-home > a.nav-item')
+
+    allClass.each((i, e) => {
+        const name = $(e).text()
+        const href = $(e).attr('href')
+        const isIgnore = isIgnoreClassName(name)
+        if (isIgnore) return
+
+        list.push({
+            name,
+            ext: {
+                url: encodeURI(href),
+            },
+        })
+    })
+
+    return list
+}
+
+async function getCards(ext) {
+    ext = argsify(ext)
+    let cards = []
+    let { page = 1, url } = ext
+
+    if (page > 1) {
+        url += `&page=${page}`
+    }
+
+    const { data } = await $fetch.get(url, {
+        headers: {
+            'User-Agent': UA,
+        },
+    })
+
+    const $ = cheerio.load(data)
+    let videolist = $('.home-rows-videos-wrapper > a')
+    if (videolist.length === 0) videolist = $('.content-padding-new > .row > .search-doujin-videos.col-xs-6')
+
+    videolist.each((_, element) => {
+        const href = $(element).attr('href') || $(element).find('.overlay').attr('href')
+        const title = $(element).find('.home-rows-videos-title').text() || $(element).find('.card-mobile-title').text()
+        let cover = $(element).find('img').attr('src')
+        if (cover.includes('background')) cover = $(element).find('img').eq(1).attr('src')
+        cards.push({
+            vod_id: href,
+            vod_name: title,
+            vod_pic: cover,
+            vod_remarks: '',
+            ext: {
+                url: href,
+            },
+        })
+    })
+
+    return jsonify({
+        list: cards,
+    })
+}
+
+async function getTracks(ext) {
+    ext = argsify(ext)
+    let tracks = []
+    let url = ext.url
+    tracks.push({
+        name: '播放',
+        pan: '',
+        ext: {
+            url: url,
+        },
+    })
+
+    // const { data } = await $fetch.get(url, {
+    //     headers: {
+    //         'User-Agent': UA,
+    //     },
+    // })
+
+    // const $ = cheerio.load(data)
+    // const playlist = $('#content-div .single-show-list #playlist-scroll > div')
+
+    // playlist.each((_, e) => {
+    //     const name = $(e).find('.card-mobile-title').text()
+    //     const href = $(e).find('a.overlay').attr('href')
+    //     tracks.push({
+    //         name: name,
+    //         pan: '',
+    //         ext: {
+    //             url: href,
+    //         },
+    //     })
+    // })
+
+    return jsonify({
+        list: [
+            {
+                title: '默认分组',
+                tracks,
+            },
+        ],
+    })
+}
+
+async function getPlayinfo(ext) {
+    ext = argsify(ext)
+    const url = ext.url
+
+    const { data } = await $fetch.get(url, {
+        headers: {
+            'User-Agent': UA,
+        },
+    })
+
+    const $ = cheerio.load(data)
+    const json = $('script[type=application/ld+json]').text()
+
+    let playUrl = json.match(/contentUrl":\s?"(.*?)",/)[1]
+
+    return jsonify({ urls: [playUrl] })
+}
+
+async function search(ext) {
+    ext = argsify(ext)
+    let cards = []
+
+    let text = encodeURIComponent(ext.text)
+    let page = ext.page || 1
+    let url = `${appConfig.site}/search?query=${text}&page=${page}`
+
+    const { data } = await $fetch.get(url, {
+        headers: {
+            'User-Agent': UA,
+        },
+    })
+    const $ = cheerio.load(data)
+
+    $('.col-xs-6').each((_, element) => {
+        const href = $(element).find('.overlay').attr('href')
+        const title = $(element).find('.card-mobile-title').text()
+        const cover = $(element).find('img').eq(1).attr('src')
+        cards.push({
+            vod_id: href,
+            vod_name: title,
+            vod_pic: cover,
+            vod_remarks: '',
+            ext: {
+                url: href,
+            },
+        })
+    })
+
+    return jsonify({
+        list: cards,
+    })
+}
