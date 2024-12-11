@@ -49,22 +49,12 @@ async function getClassList(args) {
         },
         {
             type_id: '4',
+            type_name: '纪录片',
+            hasSubclass: false,
+        },
+        {
+            type_id: '25',
             type_name: '综艺',
-            hasSubclass: false,
-        },
-        {
-            type_id: '44',
-            type_name: '臻彩视界',
-            hasSubclass: false,
-        },
-        {
-            type_id: '6',
-            type_name: '玩偶短剧',
-            hasSubclass: false,
-        },
-        {
-            type_id: '5',
-            type_name: '玩偶音乐',
             hasSubclass: false,
         },
     ]
