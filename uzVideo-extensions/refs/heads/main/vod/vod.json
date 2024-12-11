@@ -10,7 +10,7 @@
     {
         "name": "Hanime1",
         "api": "https://raw.kkgithub.com/dddfdr/ggjh/main/uzVideo-extensions/refs/heads/main/vod/js/Hanime1.js",
-        "webSite": "https://hanime1.me/#",
+        "webSite": "https://hanime1.me",
         "remark": "广告",
         "version": "2",
         "type": 101
