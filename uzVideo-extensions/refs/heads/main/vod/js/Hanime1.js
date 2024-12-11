@@ -34,37 +34,37 @@ async function getClassList(args) {
     backData.data = [
         {
             type_id: '1',
-            type_name: '玩偶电影',
+            type_name: '裏番',
             hasSubclass: false,
         },
         {
             type_id: '2',
-            type_name: '玩偶剧集',
+            type_name: '泡麵番',
             hasSubclass: false,
         },
         {
             type_id: '3',
-            type_name: '玩偶动漫',
+            type_name: 'Motion+Anime',
             hasSubclass: false,
         },
         {
             type_id: '4',
-            type_name: '玩偶综艺',
+            type_name: '3D動畫',
             hasSubclass: false,
         },
         {
             type_id: '44',
-            type_name: '臻彩视界',
+            type_name: '同人作品',
             hasSubclass: false,
         },
         {
             type_id: '6',
-            type_name: '玩偶短剧',
+            type_name: '角色扮演',
             hasSubclass: false,
         },
         {
             type_id: '5',
-            type_name: '玩偶音乐',
+            type_name: '预览',
             hasSubclass: false,
         },
     ]
