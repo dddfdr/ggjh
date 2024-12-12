@@ -11,11 +11,11 @@ class FilterLabel {
         /**
          * 筛选名称
          */
-        this.name = ''
+        this.name = '全部类型'
         /**
          * 标识值 根据情况赋值
          */
-        this.id = ''
+        this.id = 'https://hanime1.me/search?query=&type=&genre=全部&sort=&year=&month='
         /**
          * 标识key 根据情况赋值
          */
@@ -30,12 +30,12 @@ class FilterLabel {
 class FilterTitle {
     constructor() {
         // 筛选标题
-        this.name = ''
+        this.name = '裏番'
         /**
          * 筛选标签列表
          * @type {FilterLabel[]}
          */
-        this.list = []
+        this.list = [裏番]
     }
 }
 
@@ -46,9 +46,9 @@ class FilterTitle {
 class VideoClass {
     constructor() {
         // 当前分类的链接
-        this.type_id = ''
+        this.type_id = 'https://hanime1.me/search?query=&type=&genre=裏番&sort=&year=&month='
         // 分类名称
-        this.type_name = ''
+        this.type_name = '裏番'
 
         /**
          * 是否存在 筛选列表、子分类。 存在会调用 getSubclassList
