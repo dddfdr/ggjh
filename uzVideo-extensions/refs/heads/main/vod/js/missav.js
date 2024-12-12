@@ -11,7 +11,7 @@ class missavClass extends WebApiBase {
      */
     constructor() {
         super();
-        this.url = 'https://missav.com'
+        this.url = 'https://hanime1.me'
         this.headers = {
             'User-Agent': 'PostmanRuntime/7.39.0',
         }
