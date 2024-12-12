@@ -290,7 +290,7 @@
     },
     {
         "name": "高管",
-        "api": "https://ghp.ci/https://raw.githubusercontent.com/YYDS678/uzVideo-extensions/refs/heads/main/vod/js/missav.js",
+        "api": "https://raw.kkgithub.com/dddfdr/ggjh/main/uzVideo-extensions/refs/heads/main/vod/js/missav.js",
         "instance": "missav20240627",
         "webSite": "https://missav.com",
         "remark": "",
