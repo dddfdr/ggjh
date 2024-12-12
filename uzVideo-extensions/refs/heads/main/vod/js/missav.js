@@ -1,20 +1,20 @@
 // ignore
-import { WebApiBase, VideoClass } from '../core/uzCode.js'
-import { parse } from 'node-html-parser'
+import { } from '../../core/uzVideo.js'
+import { } from '../../core/uzHome.js'
+import { } from '../../core/uz3lib.js'
+import { } from '../../core/uzUtils.js'
 // ignore
 
 class missavClass extends WebApiBase {
-    url = 'https://missav.com'
-    headers = {
-        'User-Agent': 'PostmanRuntime/7.39.0'
-    }
-
-    categoryList = {
-        '最近更新': 'https://missav.com/new',
-        '新作上市': 'https://missav.com/release',
-        '无码流出': 'https://missav.com/uncensored-leak',
-        'FC2': 'https://missav.com/fc2',
-        '中文字幕': 'https://missav.com/chinese-subtitle'
+    /**
+     *
+     */
+    constructor() {
+        super();
+        this.url = 'https://missav.com'
+        this.headers = {
+            'User-Agent': 'PostmanRuntime/7.39.0',
+        }
     }
 
     /**
@@ -35,8 +35,6 @@ class missavClass extends WebApiBase {
                 let document = parse(proData)
                 let allClass = document.querySelectorAll('.relative nav .py-1 a')
                 let list = []
-                let sortKey = ['?','?sort=monthly_views','?sort=views','?sort=saved']
-                let sortName = ['',':本月浏览排行',':总浏览排行',':总收藏排行']
                 for (let index = 0; index < allClass.length; index++) {
                     const element = allClass[index]
                     let isIgnore = this.isIgnoreClassName(element.text)
@@ -47,21 +45,14 @@ class missavClass extends WebApiBase {
                     let url = element.getAttribute('href') ?? ''
 
                     if (url.length > 0 && type_name.length > 0) {
-                        url = url
-                        type_name = type_name.trim()
-                        for(let j = 0; j < sortKey.length; j++) {
-                            let newUrl = url + sortKey[j]
-                            let new_type_name = type_name + sortName[j]
-                            let videoClass = new VideoClass()
-                            videoClass.type_id = newUrl
-                            videoClass.type_name = new_type_name
-                            list.push(videoClass)
-                        }
-                        
+                        let videoClass = new VideoClass()
+                        videoClass.type_id = url
+                        videoClass.type_name = type_name.trim()
+                        list.push(videoClass)
                     }
                 }
 
-                backData.data = list.filter((e) => e.type_id.includes('missav.com/dm'))
+                backData.data = list.filter((e) => !e.type_id.includes('bit.ly'))
             }
         } catch (error) {
             backData.error = '获取分类失败～' + error.message
@@ -76,7 +67,7 @@ class missavClass extends WebApiBase {
      * @returns {Promise<RepVideoList>}
      */
     async getVideoList(args) {
-        let listUrl = this.removeTrailingSlash(args.url) + '&page=' + args.page
+        let listUrl = this.removeTrailingSlash(args.url) + '?page=' + args.page
         let backData = new RepVideoList()
         try {
             let pro = await req(listUrl, { headers: this.headers })
