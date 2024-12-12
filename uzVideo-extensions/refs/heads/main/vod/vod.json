@@ -289,7 +289,7 @@
         "type": 100
     },
     {
-        "name": "MISSAV",
+        "name": "高管",
         "api": "https://ghp.ci/https://raw.githubusercontent.com/YYDS678/uzVideo-extensions/refs/heads/main/vod/js/missav.js",
         "instance": "missav20240627",
         "webSite": "https://missav.com",
